@@ -3,7 +3,7 @@ import sys
 import os
 from telethon import TelegramClient
 from config import Config
-from modules.auth import auth_handler  # मास्टर फ़ंक्शन इम्पोर्ट
+from modules.auth import auth_handler
 from aiohttp import web
 
 bot = TelegramClient('extreme_bot', Config.API_ID, Config.API_HASH)
@@ -27,10 +27,10 @@ async def start_bot():
     await bot.start(bot_token=Config.BOT_TOKEN)
     print("✅ Bot Connected Successfully!")
     
-    # मास्टर हैन्डलर लोड करना
+    # Load Master Handler
     await auth_handler(bot)
     
-    print("🚀 Bot is now running 24/7...")
+    print("🚀 Bot is now running 24/7 in background...")
     await bot.run_until_disconnected()
 
 if __name__ == '__main__':
@@ -39,4 +39,4 @@ if __name__ == '__main__':
     try:
         asyncio.run(start_bot())
     except (KeyboardInterrupt, SystemExit):
-        print("\n🛑 Bot stopped.")
+        print("\n🛑 Bot stopped manually by user.")
