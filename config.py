@@ -10,7 +10,7 @@ class Config:
     API_HASH = os.getenv("API_HASH", "5de17ccad483d9870dd94e1d705c0c54")
     
     # बोट का टोकन (@BotFather से मिलेगा)
-    BOT_TOKEN = os.getenv("BOT_TOKEN", "8854087268:AAFXv7-1dfDas2OSWoJuD_Jbw52HrL7yW74")
+    BOT_TOKEN = os.getenv("BOT_TOKEN", "8915750105:AAG2TgNSm7YWwHHFsZeDKB-CIJroRFqTC7Y")
     
     # एडमिन की टेलीग्राम न्यूमेरिक ID (Optional)
     ADMIN_ID = int(os.getenv("ADMIN_ID", "8802295647"))
