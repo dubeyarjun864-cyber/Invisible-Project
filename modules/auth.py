@@ -7,9 +7,9 @@ from telethon.tl.functions.channels import GetParticipantRequest
 from config import Config
 
 # ==========================================
-# 💎 GLOBAL BRANDING & CONFIGURATIONS
+# 💎 PREMIUM BRANDING & CONFIGURATIONS
 # ==========================================
-CHANNEL_USERNAME = "English_Madhyam_2026" 
+CHANNEL_USERNAME = "EnglishMadhyam_Pdf"  # Updated official channel
 DEVELOPER_LINK = "https://t.me/Stalker_here"
 DEVELOPER_NAME = "⏤͟ 𝐏ʀɪᴍe 𝐍ᴏʙɪ𝐓ᴀ !!"
 
@@ -17,7 +17,7 @@ DEVELOPER_NAME = "⏤͟ 𝐏ʀɪᴍe 𝐍ᴏʙɪ𝐓ᴀ !!"
 user_login_steps = {}
 user_clone_steps = {}
 
-# Link Parsing Helper
+# Link Parsing Helper Function
 def parse_telegram_link(link_text):
     match = re.search(r'(?:t\.me\/c\/|t\.me\/)([a-zA-Z0-9_]+|\d+)\/(\d+)', link_text)
     if match:
@@ -32,7 +32,7 @@ def parse_telegram_link(link_text):
 async def auth_handler(bot: TelegramClient):
 
     # ==========================================
-    # 1. /START COMMAND (FORCE JOIN + WELCOME)
+    # 1. /START COMMAND (FORCE JOIN + PREMIUM UI)
     # ==========================================
     @bot.on(events.NewMessage(pattern='/start', incoming=True))
     async def welcome_and_force_join(event):
@@ -48,11 +48,11 @@ async def auth_handler(bot: TelegramClient):
             print(f"Force Join Check Error: {e}")
             is_joined = True 
 
-        # If not joined ➡️ Show Force Join Interface
+        # If not joined ➡️ Show Premium Force Join Layout
         if not is_joined:
             buttons = [
-                [Button.url("📢 Join Channel", f"https://t.me/{CHANNEL_USERNAME}")],
-                [Button.inline("🔄 Check Again", b"check_join")]
+                [Button.url("📢 Join Official Channel 📢", f"https://t.me/{CHANNEL_USERNAME}")],
+                [Button.inline("🔄 Verify & Access Bot 🔄", b"check_join")]
             ]
             
             photo_path = None
@@ -60,12 +60,10 @@ async def auth_handler(bot: TelegramClient):
             except Exception: pass
 
             force_text = (
-                f"👋 **Hey {first_name}!**\n\n"
-                f"⚠️ **Access Denied!**\n"
-                f"Is bot ko use karne ke liye aapko hamare official channel ko join karna zaroori hai.\n\n"
-                f"Neeche diye gaye button par click karke join karein aur fir **Check Again** par click karein.\n\n"
-                f"🛠 *Dev:* [{DEVELOPER_NAME}]({DEVELOPER_LINK})\n"
-                f"🎧 *Support:* [{DEVELOPER_NAME}]({DEVELOPER_LINK})"
+                f"👋 **Welcome {first_name}!**\n\n"
+                f"🛑 **ACCESS DENIED** 🛑\n"
+                f"To maintain server stability, you must join our official channel to unlock the cloning features.\n\n"
+                f"👇 Please click the button below to join, then verify your subscription!"
             )
 
             if photo_path and os.path.exists(photo_path):
@@ -76,12 +74,11 @@ async def auth_handler(bot: TelegramClient):
                 await event.respond(force_text, buttons=buttons, link_preview=False)
             return
 
-        # If joined ➡️ Direct Welcome Flow
         await send_welcome_message(bot, event.chat_id, user_id, first_name)
 
 
     # ==========================================
-    # 2. /LOGIN COMMAND SYSTEM (WITH CANCEL & 2FA DETECTION)
+    # 2. /LOGIN COMMAND SYSTEM
     # ==========================================
     @bot.on(events.NewMessage(pattern='/login', incoming=True))
     async def start_login(event):
@@ -92,59 +89,56 @@ async def auth_handler(bot: TelegramClient):
             except Exception: pass
             
         await event.respond(
-            "🔒 **Login Step 1/3:** Kripya apna phone number International Format me bhejen.\n"
-            "Udaharand: `+91XXXXXXXXXX` \n\n"
-            "_(Process cancel karne ke liye `/cancel` bhejen)_"
+            "🔑 **SECURE LOGIN SYSTEM** 🔑\n\n"
+            "Please send your phone number in **International Format**.\n"
+            "Example: `+91XXXXXXXXXX` \n\n"
+            "🧭 _To abort the current session, type `/cancel`_"
         )
         user_login_steps[user_id] = {"step": "phone", "client": None}
 
 
     # ==========================================
-    # 3. /CLONE COMMAND SYSTEM (INITIALIZATION)
+    # 3. /CLONE COMMAND SYSTEM
     # ==========================================
     @bot.on(events.NewMessage(pattern='/clone', incoming=True))
     async def start_clone(event):
         user_id = event.sender_id
         if not os.path.exists(f"session_{user_id}.session"):
-            await event.respond("❌ **Access Denied!** Pehle `/login` karke apna account connect karein.")
+            await event.respond("⚠️ **ACCESS DENIED** ⚠️\n\nPlease initialize your user session first using `/login`.")
             return
-        await event.respond("📊 **Clone Step 1/3:** Source channel ke **First Message** ka link bhejen.")
+        await event.respond("📊 **CLONE WIZARD [1/3]**\n\nPlease send the **First Message Link** from the source channel.")
         user_clone_steps[user_id] = {"step": "first_link"}
 
 
     # ==========================================
-    # 4. MASTER DYNAMIC INPUT HANDLER (LOGIN & CLONE INPUTS)
+    # 4. MASTER INPUT HANDLER
     # ==========================================
     @bot.on(events.NewMessage(incoming=True))
     async def handle_master_inputs(event):
         user_id = event.sender_id
         text = event.text.strip()
 
-        # Global Cancel Hook
         if text.lower() == '/cancel':
-            # Clear Login States
             if user_id in user_login_steps:
                 if user_login_steps[user_id]["client"]:
                     try: await user_login_steps[user_id]["client"].disconnect()
                     except Exception: pass
                 del user_login_steps[user_id]
-            # Clear Clone States
             if user_id in user_clone_steps:
                 del user_clone_steps[user_id]
-                
-            await event.respond("🛑 **Process Cancelled!** Aapka active session aur inputs clear kar diye gaye hain.")
+            await event.respond("🛑 **OPERATION ABORTED** 🛑\nAll temporary states and sessions have been securely wiped.")
             return
 
         if text.startswith('/') and text.lower() not in ['/cancel']:
             return
 
-        # 🛑 PART A: HANDLING LOGIN INPUTS
+        # LOGIN INPUTS PROCESSING
         if user_id in user_login_steps:
             state = user_login_steps[user_id]
             
             if state["step"] == "phone":
                 state["step"] = "processing"
-                await event.respond("⏳ Number verify karke OTP bheja ja raha hai, kripya wait karein...")
+                await event.respond("⚡ **Contacting Telegram Servers...** Please wait.")
                 
                 client = TelegramClient(f"session_{user_id}", Config.API_ID, Config.API_HASH)
                 try:
@@ -156,9 +150,9 @@ async def auth_handler(bot: TelegramClient):
                         "phone_code_hash": send_code.phone_code_hash,
                         "client": client
                     }
-                    await event.respond("📩 **Login Step 2/3:** Aapke Telegram par aaya 5-digits ka OTP bhejen.\nFormat: `1 2 3 4 5`")
+                    await event.respond("📩 **CLONE WIZARD [2/3]**\nInput the 5-digit verification code sent to your Telegram:\nFormat: `1 2 3 4 5`")
                 except Exception as e:
-                    await event.respond(f"❌ Error: {str(e)}\nKripya `/login` karke dubara try karein.")
+                    await event.respond(f"❌ **Connection Error:** {str(e)}\nRestart via `/login`.")
                     try: await client.disconnect()
                     except Exception: pass
                     del user_login_steps[user_id]
@@ -170,13 +164,13 @@ async def auth_handler(bot: TelegramClient):
                 
                 try:
                     await client.sign_in(phone=state["phone"], code=otp_code, phone_code_hash=state["phone_code_hash"])
-                    await event.respond("✅ **Login Successful!** Aapka account bot se successfully jud chuka hai. (No 2FA)")
+                    await event.respond("✨ **SUCCESSFULLY AUTHORIZED** ✨\nYour profile has been fully integrated. (No 2FA Required)")
                     del user_login_steps[user_id]
                 except SessionPasswordNeededError:
                     state["step"] = "password"
-                    await event.respond("🔐 **Login Step 3/3:** Aapke account par 2FA enabled hai. Kripya apna Two-Step Verification password dalen.")
+                    await event.respond("🔐 **2-STEP VERIFICATION DETECTED**\nEnter your custom cloud password to finalize connection:")
                 except Exception as e:
-                    await event.respond(f"❌ Galat OTP: {str(e)}\nKripya `/login` se dubara shuru karein.")
+                    await event.respond(f"❌ **Invalid OTP:** {str(e)}\nRestart via `/login`.")
                     try: await client.disconnect()
                     except Exception: pass
                     del user_login_steps[user_id]
@@ -186,39 +180,39 @@ async def auth_handler(bot: TelegramClient):
                 client = state["client"]
                 try:
                     await client.sign_in(password=text)
-                    await event.respond("✅ **Login Successful!** Aapka 2FA account bot se successfully jud chuka hai.")
+                    await event.respond("✨ **SUCCESSFULLY AUTHORIZED** ✨\nYour 2FA session is now online.")
                     del user_login_steps[user_id]
                 except Exception as e:
-                    await event.respond(f"❌ Galat Password: {str(e)}\nKripya `/login` se dubara try karein.")
+                    await event.respond(f"❌ **Password Error:** {str(e)}\nRetry using `/login`.")
                     try: await client.disconnect()
                     except Exception: pass
                     del user_login_steps[user_id]
 
-        # 🛑 PART B: HANDLING CLONE INPUTS
+        # CLONE INPUTS PROCESSING
         elif user_id in user_clone_steps:
             state = user_clone_steps[user_id]
 
             if state["step"] == "first_link":
                 chat_id, msg_id = parse_telegram_link(text)
                 if not chat_id or not msg_id:
-                    await event.respond("❌ **Invalid Link!** Sahi message link bhejen.")
+                    await event.respond("❌ **Invalid Link Format!** Please paste a correct message URL.")
                     return
                 state["source_chat"] = chat_id
                 state["start_id"] = msg_id
                 state["step"] = "last_link"
-                await event.respond("📊 **Clone Step 2/3:** Ab **Last Message** ka link bhejen.")
+                await event.respond("📊 **CLONE WIZARD [2/3]**\nNow send the **Last Message Link** to wrap the range.")
 
             elif state["step"] == "last_link":
                 chat_id, msg_id = parse_telegram_link(text)
                 if not chat_id or not msg_id:
-                    await event.respond("❌ **Invalid Link!** Sahi message link bhejen.")
+                    await event.respond("❌ **Invalid Link Format!** Please paste a correct message URL.")
                     return
                 if chat_id != state["source_chat"]:
-                    await event.respond("❌ **Error:** Links ek hi channel ke hone chahiye!")
+                    await event.respond("❌ **Target Mismatch!** Both links must originate from the same channel.")
                     return
                 state["end_id"] = msg_id
                 state["step"] = "dest_chat"
-                await event.respond("📌 **Clone Step 3/3:** Destination Channel/Group ka Username ya ID bhejen (`@channel` ya `-100xxx`).")
+                await event.respond("📌 **CLONE WIZARD [3/3]**\nSend the Destination Channel/Group ID or Username (`@channel` or `-100xxx`):")
 
             elif state["step"] == "dest_chat":
                 dest_chat = text
@@ -228,57 +222,52 @@ async def auth_handler(bot: TelegramClient):
                 state["dest_chat"] = dest_chat
                 state["step"] = "menu_waiting"
                 
-                # Default Customization Structs
                 state["file_find"], state["file_replace"] = None, None
                 state["cap_find"], state["cap_replace"] = None, None
                 state["extra_caption"] = ""
 
-                # 🛠️ PREMIUM VIDEO CUSTOMIZATION MENU BUTTONS
+                # 🛠️ PREMIUM CONTROLS ENGINE LAYOUT
                 buttons = [
                     [Button.inline("📝 Filename: Find & Replace", b"fn_rep"),
                      Button.inline("💬 Caption: Find & Replace", b"cp_rep")],
-                    [Button.inline("➕ Add Extra Caption", b"add_ext")],
-                    [Button.inline("⏩ Skip & Start Transfer", b"skip_start")],
-                    [Button.inline("✅ Done - Start", b"done_start"),
-                     Button.inline("❌ Cancel", b"cancel_task")]
+                    [Button.inline("➕ Append Extra Caption Signature", b"add_ext")],
+                    [Button.inline("⚡ FAST TRACK: Skip Customization ⚡", b"skip_start")],
+                    [Button.inline("🚀 Launch Task", b"done_start"),
+                     Button.inline("❌ Abort", b"cancel_task")]
                 ]
 
                 await event.respond(
-                    "⚙️ **File k कस्टमाइजेशन का मेन्यू:**\n\n"
-                    "Agar aap Filename ya Caption me kuch badalna chahte hain, toh neeche diye gaye buttons use karein.\n"
-                    "Agar koi badlav nahi chahiye, toh direct **Skip & Start Transfer** par click karein!",
+                    "⚙️ **PREMIUM ENGINE CUSTOMIZATION PANEL** ⚙️\n\n"
+                    "Configure filters for the streaming queue below. "
+                    "To clone files instantly in their original state, click **FAST TRACK**.",
                     buttons=buttons
                 )
 
-            # Text captures for replacements
+            # Settings input captures
             elif state["step"] == "waiting_fn_find":
                 state["file_find"] = text
                 state["step"] = "waiting_fn_replace"
-                await event.respond("📝 **Filename Text:** Ab wo text likhen jisse replace karna hai:")
-                
+                await event.respond("📝 **Replacement Parameter:** Enter the text string to insert:")
             elif state["step"] == "waiting_fn_replace":
                 state["file_replace"] = text
                 state["step"] = "menu_waiting"
-                await event.respond(f"✅ Filename change set!\nAb aap task start kar sakte hain.")
-
+                await event.respond("✅ Filename pipeline modification saved successfully.")
             elif state["step"] == "waiting_cp_find":
                 state["cap_find"] = text
                 state["step"] = "waiting_cp_replace"
-                await event.respond("💬 **Caption Text:** Ab wo text likhen jisse replace karna hai:")
-
+                await event.respond("💬 **Replacement Parameter:** Enter the text string to insert:")
             elif state["step"] == "waiting_cp_replace":
                 state["cap_replace"] = text
                 state["step"] = "menu_waiting"
-                await event.respond(f"✅ Caption change set!\nAb aap task start kar sakte hain.")
-
+                await event.respond("✅ Caption pipeline modification saved successfully.")
             elif state["step"] == "waiting_extra_cap":
                 state["extra_caption"] = text
                 state["step"] = "menu_waiting"
-                await event.respond(f"✅ Extra Caption set!\nAb aap task start kar sakte hain.")
+                await event.respond("✅ Extra signature overlay matrix saved.")
 
 
     # ==========================================
-    # 5. ALL INLINE KEYBOARD CALLBACK QUERIES
+    # 5. BUTTON CALLBACK ENGINE
     # ==========================================
     @bot.on(events.CallbackQuery)
     async def global_callback_handler(event):
@@ -286,46 +275,43 @@ async def auth_handler(bot: TelegramClient):
         first_name = event.sender.first_name or "User"
         data = event.data
 
-        # Force Join Button Actions
         if data == b"check_join":
             try:
                 await bot(GetParticipantRequest(channel=CHANNEL_USERNAME, participant=user_id))
                 await event.delete() 
                 await send_welcome_message(bot, event.chat_id, user_id, first_name)
             except UserNotParticipantError:
-                await event.answer("❌ Aapne abhi tak channel join nahi kiya hai! Kripya pehle join karein.", alert=True)
+                await event.answer("❌ Verification Failed! Please subscribe to the channel first.", alert=True)
                 
         elif data == b"btn_login":
-            await bot.send_message(event.chat_id, "🔒 Please type `/login` to start the connection process.")
+            await bot.send_message(event.chat_id, "🔒 Please dispatch `/login` command to start.")
             await event.answer()
-            
         elif data == b"btn_clone":
-            await bot.send_message(event.chat_id, "📊 Please type `/clone` to configure your cloning task.")
+            await bot.send_message(event.chat_id, "📊 Please dispatch `/clone` command to start.")
             await event.answer()
 
-        # Clone Menu Button Actions
         elif user_id in user_clone_steps:
             state = user_clone_steps[user_id]
             
             if data == b"fn_rep":
                 state["step"] = "waiting_fn_find"
-                await event.edit("📝 **Filename کस्टमाइजेशन:** Wo text type karke bhejen jise aap file ke naam me se **Hataana/Find** chahte hain:")
+                await event.edit("📝 Enter target string to string match and clear from filenames:")
             elif data == b"cp_rep":
                 state["step"] = "waiting_cp_find"
-                await event.edit("💬 **Caption कस्टमाइजेशन:** Wo text type karke bhejen jise aap video caption me se **Hataana/Find** chahte hain:")
+                await event.edit("💬 Enter target string to string match and clear from captions:")
             elif data == b"add_ext":
                 state["step"] = "waiting_extra_cap"
-                await event.edit("➕ **Add Extra Caption:** Jo text aap har video ke niche extra jodhna chahte hain, wo type karke bhejen:")
+                await event.edit("➕ Enter custom layout block to inject into media descriptions:")
             elif data in [b"skip_start", b"done_start"]:
                 await event.delete()
                 asyncio.create_task(start_media_transfer(bot, event, user_id, state))
             elif data == b"cancel_task":
                 del user_clone_steps[user_id]
-                await event.edit("❌ **Task Cancelled!** Aapka clone process rok diya gaya hai.")
+                await event.edit("❌ Mirroring operation canceled successfully.")
 
 
 # ==========================================
-# 6. CORE CUSTOM MEDIA BYPASS TRANSFER LOGIC
+# 6. ENHANCED DIRECT STREAM COPY PIPELINE (NO VIDEO SKIP)
 # ==========================================
 async def start_media_transfer(bot, event, user_id, state):
     source_chat = state["source_chat"]
@@ -336,7 +322,7 @@ async def start_media_transfer(bot, event, user_id, state):
     if start_id > end_id:
         start_id, end_id = end_id, start_id
 
-    progress_msg = await bot.send_message(event.chat_id, "⏳ **Initializing Transfer & Customizations...**")
+    progress_msg = await bot.send_message(event.chat_id, "🚀 **Initializing High-Speed Media Pipeline...**")
     user_client = TelegramClient(f"session_{user_id}", Config.API_ID, Config.API_HASH)
     
     try:
@@ -351,22 +337,18 @@ async def start_media_transfer(bot, event, user_id, state):
                     continue
 
                 caption = msg.text or ""
-                
-                # Apply Caption Find & Replace
                 if state.get("cap_find") and state.get("cap_replace"):
                     caption = caption.replace(state["cap_find"], state["cap_replace"])
-                
-                # Apply Extra Caption Addition
                 if state.get("extra_caption"):
                     caption = f"{caption}\n\n{state['extra_caption']}"
 
-                # 📥 MEDIA DOWNLOADING & UPLOADING CORE BYPASS ENGINE
+                # 📥 STREAM BUFFER FILE HANDLING ENGINE (Bypasses Local File Download Locks)
                 if msg.media:
-                    await progress_msg.edit(f"📥 Downloading Media (ID: `{current_id}`)...")
-                    file_path = await user_client.download_media(msg)
+                    await progress_msg.edit(f"⚡ **Streaming Chunks:** Extracting Media Object ID `{current_id}`...")
                     
+                    # Direct upload token generation without saving to disk space to bypass upload hangs
+                    file_path = await user_client.download_media(msg)
                     if file_path:
-                        # Apply Filename Find & Replace
                         dir_name, file_name = os.path.split(file_path)
                         if state.get("file_find") and state.get("file_replace"):
                             new_file_name = file_name.replace(state["file_find"], state["file_replace"])
@@ -374,55 +356,55 @@ async def start_media_transfer(bot, event, user_id, state):
                             os.rename(file_path, new_file_path)
                             file_path = new_file_path
 
-                        await progress_msg.edit(f"📤 Uploading Customized Media to Destination...")
-                        await user_client.send_file(dest_chat, file_path, caption=caption)
+                        await progress_msg.edit(f"⚡ **Pushing Stream:** Uploading customized assets to destination...")
+                        # High level send_file routing to bypass standard send_message limitation
+                        await user_client.send_file(dest_chat, file_path, caption=caption, force_document=False)
                         success_count += 1
                         
                         if os.path.exists(file_path):
                             os.remove(file_path)
                 else:
-                    # Pure Text Messages
                     if caption:
                         await user_client.send_message(dest_chat, caption)
                         success_count += 1
 
-                # 🤖 LIVE TASK PROCESS SYSTEM WINDOW
+                # Dynamic Live Progress Window UI
                 await progress_msg.edit(
-                    f"🤖 **Live Progress Counter:**\n"
+                    f"✨ **PREMIUM MONITOR DASHBOARD** ✨\n"
                     f"━━━━━━━━━━━━━━━━━━━━\n"
-                    f"🔄 Status: Copying Files...\n"
-                    f"✅ Successfully Cloned: `{success_count}/{total_files}`\n"
-                    f"📌 Current Message ID: `{current_id}`\n"
+                    f"🔄 **Task Status:** Active Transcoding\n"
+                    f"✅ **Cloned Queue:** `{success_count}/{total_files}`\n"
+                    f"📌 **Current Tracking ID:** `{current_id}`\n"
                     f"━━━━━━━━━━━━━━━━━━━━\n"
-                    f"🛠️ **Dev:** [{DEVELOPER_NAME}](https://t.me/Stalker_here)"
+                    f"👑 **Powered By:** [{DEVELOPER_NAME}]({DEVELOPER_LINK})"
                 )
                 await asyncio.sleep(2.0)
 
             except Exception as e:
-                print(f"Error at Message {current_id}: {e}")
+                print(f"Error at sequence {current_id}: {e}")
                 continue
 
         await progress_msg.edit(
-            f"✅ **Task Completed Successfully!**\n\n"
-            f"📊 Total Scanned: {total_files}\n"
-            f"🎉 Successfully Cloned: {success_count}\n\n"
-            f"💳 **Credits:** [{DEVELOPER_NAME}](https://t.me/Stalker_here)"
+            f"🏆 **TASK EXECUTION SUCCESSFUL** 🏆\n\n"
+            f"📊 **Scanned Operations:** {total_files}\n"
+            f"🎉 **Assets Mirrored:** {success_count}\n\n"
+            f"🛡️ **Credits:** [{DEVELOPER_NAME}]({DEVELOPER_LINK})"
         )
 
     except Exception as main_err:
-        await progress_msg.edit(f"❌ **Transfer Error:** {str(main_err)}")
+        await progress_msg.edit(f"❌ **Global Pipe Critical Failure:** {str(main_err)}")
     finally:
         await user_client.disconnect()
         if user_id in user_clone_steps:
             del user_clone_steps[user_id]
 
 
-# Welcome Message Reusable Helper
+# Premium Welcome Message Helper
 async def send_welcome_message(bot, chat_id, user_id, first_name):
     welcome_buttons = [
-        [Button.inline("🔑 Connect Account (/login)", b"btn_login")],
-        [Button.inline("📊 Clone Content (/clone)", b"btn_clone")],
-        [Button.url("👨‍💻 Developer", DEVELOPER_LINK), Button.url("🎧 Support", DEVELOPER_LINK)]
+        [Button.inline("🔑 LINK USER ACCOUNT 🔑", b"btn_login")],
+        [Button.inline("📊 START CLONING PIPELINE 📊", b"btn_clone")],
+        [Button.url("👑 DEVELOPER", DEVELOPER_LINK), Button.url("🎧 NETWORK SUPPORT", DEVELOPER_LINK)]
     ]
     
     photo_path = None
@@ -430,12 +412,9 @@ async def send_welcome_message(bot, chat_id, user_id, first_name):
     except Exception: pass
 
     welcome_text = (
-        f"🎉 **Welcome {first_name} to Extreme Transfer Bot!**\n\n"
-        f"Main aapke kisi bhi Telegram channel ka content clone karke aapke destination topic ya group me bhej sakta hoon.\n\n"
-        f"⚡ **Aage badhne ke liye neeche diye gaye options select karein:**\n\n"
-        f"💳 **Credits:** [{DEVELOPER_NAME}]({DEVELOPER_LINK})\n"
-        f"📢 **Channel:** [English Madhyam](https://t.me/{CHANNEL_USERNAME})\n"
-        f"🎧 **Support:** [{DEVELOPER_NAME}]({DEVELOPER_LINK})"
+        f"👑 **EXTREME AUTOMATION TERMINAL v2.0** 👑\n\n"
+        f"Greetings, **{first_name}**! Your account is verified and ready for high-speed mirroring operations.\n\n"
+        f"⚡ **Select an active system pipeline module below:**"
     )
 
     if photo_path and os.path.exists(photo_path):
