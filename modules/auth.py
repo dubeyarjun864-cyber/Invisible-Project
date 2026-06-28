@@ -1,4 +1,4 @@
-    import os
+import os
 import re
 import asyncio
 from telethon import TelegramClient, events, Button
@@ -53,13 +53,17 @@ async def auth_handler(bot: TelegramClient):
             force_text = f"👋 **Welcome {first_name}!**\n\n🛑 **ACCESS DENIED** 🛑\nPlease join our official channel to unlock features."
             
             photo_path = None
-            try: photo_path = await bot.download_profile_photo(user_id, file=f"avatar_{user_id}.jpg")
-            except Exception: pass
+            try: 
+                photo_path = await bot.download_profile_photo(user_id, file=f"avatar_{user_id}.jpg")
+            except Exception: 
+                pass
 
             if photo_path and os.path.exists(photo_path):
                 await bot.send_file(event.chat_id, photo_path, caption=force_text, buttons=buttons)
-                try: os.remove(photo_path)
-                except Exception: pass
+                try: 
+                    os.remove(photo_path)
+                except Exception: 
+                    pass
             else:
                 await event.respond(force_text, buttons=buttons)
             return
@@ -73,8 +77,10 @@ async def auth_handler(bot: TelegramClient):
     async def start_login(event):
         user_id = event.sender_id
         if user_id in user_login_steps:
-            try: await user_login_steps[user_id]["client"].disconnect()
-            except Exception: pass
+            try: 
+                await user_login_steps[user_id]["client"].disconnect()
+            except Exception: 
+                pass
             
         await event.respond("🔑 **SECURE LOGIN SYSTEM**\nEnter phone number with country code (e.g., `+91XXXXXXXXXX`):\n\n_(Type `/cancel` to abort)_")
         user_login_steps[user_id] = {"step": "phone", "client": None}
@@ -101,8 +107,10 @@ async def auth_handler(bot: TelegramClient):
 
         if text.lower() == '/cancel':
             if user_id in user_login_steps:
-                try: await user_login_steps[user_id]["client"].disconnect()
-                except Exception: pass
+                try: 
+                    await user_login_steps[user_id]["client"].disconnect()
+                except Exception: 
+                    pass
                 del user_login_steps[user_id]
             if user_id in user_clone_steps:
                 del user_clone_steps[user_id]
@@ -155,14 +163,16 @@ async def auth_handler(bot: TelegramClient):
             state = user_clone_steps[user_id]
             if state["step"] == "first_link":
                 chat_id, msg_id = parse_telegram_link(text)
-                if not chat_id: return
+                if not chat_id: 
+                    return
                 state["source_chat"] = chat_id
                 state["start_id"] = msg_id
                 state["step"] = "last_link"
                 await event.respond("📊 **CLONE WIZARD [2/3]**\nSend the **Last Message Link**:")
             elif state["step"] == "last_link":
                 chat_id, msg_id = parse_telegram_link(text)
-                if not chat_id: return
+                if not chat_id: 
+                    return
                 state["end_id"] = msg_id
                 state["step"] = "dest_chat"
                 await event.respond("📌 **CLONE WIZARD [3/3]**\nSend Destination Chat ID or Username:")
@@ -179,7 +189,6 @@ async def auth_handler(bot: TelegramClient):
                 state["extra_caption"] = ""
                 state["dest_topic"] = None
 
-                # 📊 Customization Vertical UI Buttons
                 buttons = [
                     [Button.inline("📝 Filename: Find & Replace", b"fn_rep")],
                     [Button.inline("💬 Caption: Find & Replace", b"cp_rep")],
@@ -201,7 +210,6 @@ async def auth_handler(bot: TelegramClient):
                     buttons=buttons
                 )
 
-            # Settings values assignments
             elif state["step"] == "waiting_fn_find":
                 state["file_find"] = text
                 state["step"] = "waiting_fn_replace"
@@ -276,7 +284,7 @@ async def auth_handler(bot: TelegramClient):
                 await event.edit("❌ Canceled.")
 
 # ==========================================
-# 6. FORCE ITERATOR TRANSFER ENGINE (100% REAL PIPELINE)
+# 6. FORCE ITERATOR TRANSFER ENGINE
 # ==========================================
 async def start_media_transfer(bot, event, user_id, state):
     source_chat = state["source_chat"]
@@ -302,7 +310,6 @@ async def start_media_transfer(bot, event, user_id, state):
         success_count = 0
         total_files = (end_id - start_id) + 1
 
-        # 🛠️ FIXED CORE STREAM: Using chunk array iterator to pull metadata bypassing standard download locks
         async for msg in user_client.iter_messages(source_entity, min_id=start_id-1, max_id=end_id+1, reverse=True):
             if msg.id < start_id or msg.id > end_id:
                 continue
@@ -319,7 +326,6 @@ async def start_media_transfer(bot, event, user_id, state):
                 if state.get("extra_caption"):
                     caption = f"{caption}\n\n{state['extra_caption']}"
 
-                # Strict Media File Processing
                 if msg.media:
                     await progress_msg.edit(f"📥 **Downloading Media ID:** `{msg.id}`...")
                     
@@ -352,7 +358,6 @@ async def start_media_transfer(bot, event, user_id, state):
                         await user_client.send_message(dest_chat, caption, reply_to=topic_id)
                         success_count += 1
 
-                # Live Update Dashboard (Cleaned without invalid functions)
                 await progress_msg.edit(
                     f"✨ **PREMIUM MONITOR DASHBOARD** ✨\n"
                     f"━━━━━━━━━━━━━━━━━━━━\n"
@@ -390,8 +395,10 @@ async def send_welcome_message(bot, chat_id, user_id, first_name):
     ]
     
     photo_path = None
-    try: photo_path = await bot.download_profile_photo(user_id, file=f"avatar_{user_id}.jpg")
-    except Exception: pass
+    try: 
+        photo_path = await bot.download_profile_photo(user_id, file=f"avatar_{user_id}.jpg")
+    except Exception: 
+        pass
 
     welcome_text = (
         f"👑 **EXTREME AUTOMATION TERMINAL v2.0** 👑\n\n"
@@ -403,7 +410,9 @@ async def send_welcome_message(bot, chat_id, user_id, first_name):
 
     if photo_path and os.path.exists(photo_path):
         await bot.send_file(chat_id, photo_path, caption=welcome_text, buttons=welcome_buttons)
-        try: os.remove(photo_path)
-        except Exception: pass
+        try: 
+            os.remove(photo_path)
+        except Exception: 
+            pass
     else:
         await bot.send_message(chat_id, welcome_text, buttons=welcome_buttons)
